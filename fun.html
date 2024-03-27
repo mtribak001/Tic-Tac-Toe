@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe (Functional Programming)</title>
+    
+</head>
+<body>
+    <section>
+        <h1 class="game--title">Tic Tac Toe</h1>
+        <div class="game--container">
+            <div data-cell-index="0" class="cell"></div>
+            <div data-cell-index="1" class="cell"></div>
+            <div data-cell-index="2" class="cell"></div>
+            <div data-cell-index="3" class="cell"></div>
+            <div data-cell-index="4" class="cell"></div>
+            <div data-cell-index="5" class="cell"></div>
+            <div data-cell-index="6" class="cell"></div>
+            <div data-cell-index="7" class="cell"></div>
+            <div data-cell-index="8" class="cell"></div>
+        </div>
+        <h3 class="game--status"></h3>
+        <button class="game--restart">Restart Game</button>
+    </section>
+    <style>
+       body{
+    font-family: "Poppins", sans-serif;
+    background-color: crimson;
+}
+section {
+    text-align: center;
+    border-radius: 10px;
+    width: 700px;
+    margin: auto;
+    background-color: beige;
+    margin-top: 75px;
+    box-shadow: 0px 10px 36px 16px rgba(0, 0, 0, 0.1);
+}
+.game--title {
+    padding-top: 20px;
+}
+.game--container {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    width: 150px;
+    margin: 120px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+.cell {
+    font-family: "Poppins", sans-serif;
+    width: 150px;
+    height: 150px;
+    box-shadow: 0 0 0 1px #333333;
+    border: 0 px solid #333333;
+    cursor: pointer;
+    line-height: 155px;
+    font-size: 200px;
+}
+button {
+    margin-bottom: 20px;
+    height: 30px;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    background-color: darkred;
+    cursor: pointer;
+}
+button:hover {
+    transition: 0.25s;
+    background-color: coral;
+}
+    </style>
+
+    <script>
+// Pure functions
+const currentPlayerTurn = (currentPlayer) => `It's ${currentPlayer}'s turn`;
+const winningMessage = (currentPlayer) => `Player ${currentPlayer} has won!`;
+const drawMessage = () => 'Game ended in a draw!';
+const getGameStatusMessage = (currentPlayer) => currentPlayerTurn(currentPlayer);
+const getWinner = (currentPlayer) => winningMessage(currentPlayer);
+
+// Impure functions
+const updateGameStatusDisplay = (message) => {
+    const statusDisplay = document.querySelector('.game--status');
+    statusDisplay.textContent = message;
+};
+
+// Main game logic
+let gameActive = true;
+let currentPlayer = 'X';
+let gameState = ['', '', '', '', '', '', '', '', ''];
+
+const winningConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
+
+// Event listeners
+document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
+document.querySelector('.game--restart').addEventListener('click', handleRestartGame);
+
+// Functions
+function handleCellClick(clickedCellEvent) {
+    const clickedCell = clickedCellEvent.target;
+    const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index'));
+    if (gameState[clickedCellIndex] !== "" || !gameActive) {
+        return;
+    }
+    handleCellPlayed(clickedCell, clickedCellIndex);
+    handleResultValidation();
+}
+
+function handleCellPlayed(clickedCell, clickedCellIndex) {
+    gameState[clickedCellIndex] = currentPlayer;
+    clickedCell.style.color = currentPlayer === 'X' ? 'red' : 'blue'; // Change color here
+    clickedCell.innerHTML = currentPlayer;
+}
+
+function handleResultValidation() {
+    let roundWon = false;
+    for (let i = 0; i < winningConditions.length; i++) {
+        const [a, b, c] = winningConditions[i];
+        if (gameState[a] === currentPlayer && gameState[b] === currentPlayer && gameState[c] === currentPlayer) {
+            roundWon = true;
+            break;
+        }
+    }
+
+    if (roundWon) {
+        const winner = getWinner(currentPlayer);
+        updateGameStatusDisplay(winner);
+        gameActive = false;
+        return;
+    }
+
+    if (!gameState.includes('')) {
+        updateGameStatusDisplay(drawMessage());
+        gameActive = false;
+        return;
+    }
+
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    updateGameStatusDisplay(getGameStatusMessage(currentPlayer));
+}
+
+function handleRestartGame() {
+    gameActive = true;
+    currentPlayer = 'X';
+    gameState = Array(9).fill('');
+    updateGameStatusDisplay(currentPlayerTurn(currentPlayer));
+    document.querySelectorAll('.cell').forEach(cell => {
+            cell.innerHTML = "";
+            cell.style.color = ''; // Reset color
+        });
+}
+    </script>
+</body>
+</html>
